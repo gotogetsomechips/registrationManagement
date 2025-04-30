@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.mapper.FeedbackMapper">
+    <resultMap id="BaseResultMap" type="store.bean.Feedback">
+        <id column="id" property="id" />
+        <result column="feedback_name" property="feedbackName" />
+        <result column="feedback_phone" property="feedbackPhone" />
+        <result column="feedback_title" property="feedbackTitle" />
+        <result column="feedback_text" property="feedbackText" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="status" property="status" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, feedback_name, feedback_phone, feedback_title, feedback_text, create_time, update_time, status
+    </sql>
+
+    <insert id="insert" parameterType="store.bean.Feedback" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_feedback (
+            feedback_name, feedback_phone, feedback_title, feedback_text
+        ) VALUES (
+                     #{feedbackName}, #{feedbackPhone}, #{feedbackTitle}, #{feedbackText}
+                 )
+    </insert>
+
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM sys_feedback WHERE id = #{id}
+    </delete>
+
+    <update id="update" parameterType="store.bean.Feedback">
+        UPDATE sys_feedback
+        <set>
+            <if test="feedbackName != null">feedback_name = #{feedbackName},</if>
+            <if test="feedbackPhone != null">feedback_phone = #{feedbackPhone},</if>
+            <if test="feedbackTitle != null">feedback_title = #{feedbackTitle},</if>
+            <if test="feedbackText != null">feedback_text = #{feedbackText},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" parameterType="int" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_feedback
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_feedback
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectByCondition" parameterType="store.bean.Feedback" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_feedback
+        <where>
+            <if test="feedbackName != null and feedbackName != ''">
+                AND feedback_name LIKE CONCAT('%', #{feedbackName}, '%')
+            </if>
+            <if test="feedbackPhone != null and feedbackPhone != ''">
+                AND feedback_phone LIKE CONCAT('%', #{feedbackPhone}, '%')
+            </if>
+            <if test="feedbackTitle != null and feedbackTitle != ''">
+                AND feedback_title LIKE CONCAT('%', #{feedbackTitle}, '%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectAllOrderBy" parameterType="string" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_feedback
+        ORDER BY ${orderBy}
+    </select>
+
+    <!-- 分页相关的方法 -->
+    <select id="selectAllWithPagination" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_feedback
+        ORDER BY id DESC
+        LIMIT #{startIndex}, #{pageSize}
+    </select>
+
+    <select id="selectByConditionWithPagination" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_feedback
+        <where>
+            <if test="condition.feedbackName != null and condition.feedbackName != ''">
+                AND feedback_name LIKE CONCAT('%', #{condition.feedbackName}, '%')
+            </if>
+            <if test="condition.feedbackPhone != null and condition.feedbackPhone != ''">
+                AND feedback_phone LIKE CONCAT('%', #{condition.feedbackPhone}, '%')
+            </if>
+            <if test="condition.feedbackTitle != null and condition.feedbackTitle != ''">
+                AND feedback_title LIKE CONCAT('%', #{condition.feedbackTitle}, '%')
+            </if>
+            <if test="condition.status != null">
+                AND status = #{condition.status}
+            </if>
+        </where>
+        ORDER BY id DESC
+        LIMIT #{startIndex}, #{pageSize}
+    </select>
+
+    <select id="selectAllOrderByWithPagination" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_feedback
+        ORDER BY ${orderBy}
+        LIMIT #{startIndex}, #{pageSize}
+    </select>
+
+    <select id="selectByConditionOrderByWithPagination" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_feedback
+        <where>
+            <if test="condition.feedbackName != null and condition.feedbackName != ''">
+                AND feedback_name LIKE CONCAT('%', #{condition.feedbackName}, '%')
+            </if>
+            <if test="condition.feedbackPhone != null and condition.feedbackPhone != ''">
+                AND feedback_phone LIKE CONCAT('%', #{condition.feedbackPhone}, '%')
+            </if>
+            <if test="condition.feedbackTitle != null and condition.feedbackTitle != ''">
+                AND feedback_title LIKE CONCAT('%', #{condition.feedbackTitle}, '%')
+            </if>
+            <if test="condition.status != null">
+                AND status = #{condition.status}
+            </if>
+        </where>
+        ORDER BY ${orderBy}
+        LIMIT #{startIndex}, #{pageSize}
+    </select>
+
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*) FROM sys_feedback
+    </select>
+
+    <select id="countByCondition" parameterType="store.bean.Feedback" resultType="int">
+        SELECT COUNT(*) FROM sys_feedback
+        <where>
+            <if test="feedbackName != null and feedbackName != ''">
+                AND feedback_name LIKE CONCAT('%', #{feedbackName}, '%')
+            </if>
+            <if test="feedbackPhone != null and feedbackPhone != ''">
+                AND feedback_phone LIKE CONCAT('%', #{feedbackPhone}, '%')
+            </if>
+            <if test="feedbackTitle != null and feedbackTitle != ''">
+                AND feedback_title LIKE CONCAT('%', #{feedbackTitle}, '%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+</mapper>
