@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.mapper.UserMapper">
+    <resultMap id="BaseResultMap" type="store.bean.User">
+        <id column="id" property="id" />
+        <result column="username" property="username" />
+        <result column="password" property="password" />
+        <result column="real_name" property="realName" />
+        <result column="user_sex" property="userSex" />
+        <result column="user_phone" property="userPhone" />
+        <result column="user_text" property="userText" />
+        <result column="user_type" property="userType" />
+        <result column="create_time" property="createTime" />
+        <result column="create_by" property="createBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="status" property="status" />
+        <result column="try_count" property="tryCount" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, username, password, real_name, user_sex, user_phone, user_text, user_type,
+        create_time, create_by, update_time, update_by, status, try_count
+    </sql>
+
+    <insert id="insert" parameterType="store.bean.User" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_user (
+            username, password, real_name, user_sex, user_phone,
+            user_text, user_type, create_by
+        ) VALUES (
+                     #{username}, #{password}, #{realName}, #{userSex}, #{userPhone},
+                     #{userText}, #{userType}, #{createBy}
+                 )
+    </insert>
+
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM sys_user WHERE id = #{id}
+    </delete>
+
+    <update id="update" parameterType="store.bean.User">
+        UPDATE sys_user
+        <set>
+            <if test="username != null">username = #{username},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="realName != null">real_name = #{realName},</if>
+            <if test="userSex != null">user_sex = #{userSex},</if>
+            <if test="userPhone != null">user_phone = #{userPhone},</if>
+            <if test="userText != null">user_text = #{userText},</if>
+            <if test="userType != null">user_type = #{userType},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="tryCount != null">try_count = #{tryCount},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" parameterType="int" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_user
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByUsername" parameterType="string" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_user
+        WHERE username = #{username}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_user
+        ORDER BY id DESC
+    </select>
+    <select id="selectByCondition" parameterType="store.bean.User" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_user
+        <where>
+            <if test="username != null and username != ''">
+                AND username LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <if test="realName != null and realName != ''">
+                AND real_name LIKE CONCAT('%', #{realName}, '%')
+            </if>
+            <if test="userPhone != null and userPhone != ''">
+                AND user_phone LIKE CONCAT('%', #{userPhone}, '%')
+            </if>
+            <if test="userType != null and userType != ''">
+                AND user_type = #{userType}
+            </if>
+        </where>
+        ORDER BY id DESC
+    </select>
+
+    <select id="countByUsername" parameterType="string" resultType="int">
+        SELECT COUNT(*) FROM sys_user WHERE username = #{username}
+    </select>
+
+    <select id="selectAllOrderBy" parameterType="string" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_user
+        ORDER BY ${orderBy}
+    </select>
+
+    <!-- 分页相关的方法 -->
+    <select id="selectAllWithPagination" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_user
+        ORDER BY id DESC
+        LIMIT #{startIndex}, #{pageSize}
+    </select>
+
+    <select id="selectByConditionWithPagination" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_user
+        <where>
+            <if test="condition.username != null and condition.username != ''">
+                AND username LIKE CONCAT('%', #{condition.username}, '%')
+            </if>
+            <if test="condition.realName != null and condition.realName != ''">
+                AND real_name LIKE CONCAT('%', #{condition.realName}, '%')
+            </if>
+            <if test="condition.userPhone != null and condition.userPhone != ''">
+                AND user_phone LIKE CONCAT('%', #{condition.userPhone}, '%')
+            </if>
+            <if test="condition.userType != null and condition.userType != ''">
+                AND user_type = #{condition.userType}
+            </if>
+        </where>
+        ORDER BY id DESC
+        LIMIT #{startIndex}, #{pageSize}
+    </select>
+
+    <!-- 修改为先排序后分页 -->
+    <select id="selectAllOrderByWithPagination" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_user
+        ORDER BY ${orderBy}
+        LIMIT #{startIndex}, #{pageSize}
+    </select>
+
+    <!-- 新增：同时处理条件查询和排序的方法 -->
+    <select id="selectByConditionOrderByWithPagination" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_user
+        <where>
+            <if test="condition.username != null and condition.username != ''">
+                AND username LIKE CONCAT('%', #{condition.username}, '%')
+            </if>
+            <if test="condition.realName != null and condition.realName != ''">
+                AND real_name LIKE CONCAT('%', #{condition.realName}, '%')
+            </if>
+            <if test="condition.userPhone != null and condition.userPhone != ''">
+                AND user_phone LIKE CONCAT('%', #{condition.userPhone}, '%')
+            </if>
+            <if test="condition.userType != null and condition.userType != ''">
+                AND user_type = #{condition.userType}
+            </if>
+        </where>
+        ORDER BY ${orderBy}
+        LIMIT #{startIndex}, #{pageSize}
+    </select>
+
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*) FROM sys_user
+    </select>
+
+    <select id="countByCondition" parameterType="store.bean.User" resultType="int">
+        SELECT COUNT(*) FROM sys_user
+        <where>
+            <if test="username != null and username != ''">
+                AND username LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <if test="realName != null and realName != ''">
+                AND real_name LIKE CONCAT('%', #{realName}, '%')
+            </if>
+            <if test="userPhone != null and userPhone != ''">
+                AND user_phone LIKE CONCAT('%', #{userPhone}, '%')
+            </if>
+            <if test="userType != null and userType != ''">
+                AND user_type = #{userType}
+            </if>
+        </where>
+    </select>
+</mapper>
