@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.mapper.ImmigrationMapper">
+    <resultMap id="BaseResultMap" type="store.bean.Immigration">
+        <id column="id" property="id" />
+        <result column="immigration_name" property="immigrationName" />
+        <result column="immigration_number" property="immigrationNumber" />
+        <result column="immigration_date" property="immigrationDate" />
+        <result column="immigration_text" property="immigrationText" />
+        <result column="create_time" property="createTime" />
+        <result column="create_by" property="createBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="update_by" property="updateBy" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, immigration_name, immigration_number, immigration_date, immigration_text,
+        create_time, create_by, update_time, update_by
+    </sql>
+
+    <insert id="insert" parameterType="store.bean.Immigration" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_immigration (
+            immigration_name, immigration_number, immigration_date,
+            immigration_text, create_by
+        ) VALUES (
+                     #{immigrationName}, #{immigrationNumber}, #{immigrationDate},
+                     #{immigrationText}, #{createBy}
+                 )
+    </insert>
+
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM sys_immigration WHERE id = #{id}
+    </delete>
+
+    <update id="update" parameterType="store.bean.Immigration">
+        UPDATE sys_immigration
+        <set>
+            <if test="immigrationName != null">immigration_name = #{immigrationName},</if>
+            <if test="immigrationNumber != null">immigration_number = #{immigrationNumber},</if>
+            <if test="immigrationDate != null">immigration_date = #{immigrationDate},</if>
+            <if test="immigrationText != null">immigration_text = #{immigrationText},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" parameterType="int" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_immigration
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_immigration
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectByCondition" parameterType="store.bean.Immigration" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_immigration
+        <where>
+            <if test="immigrationName != null and immigrationName != ''">
+                AND immigration_name LIKE CONCAT('%', #{immigrationName}, '%')
+            </if>
+            <if test="immigrationNumber != null and immigrationNumber != ''">
+                AND immigration_number LIKE CONCAT('%', #{immigrationNumber}, '%')
+            </if>
+        </where>
+        ORDER BY id DESC
+    </select>
+
+    <!-- 分页相关的方法 -->
+    <select id="selectAllWithPagination" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_immigration
+        ORDER BY id DESC
+        LIMIT #{startIndex}, #{pageSize}
+    </select>
+
+    <select id="selectByConditionWithPagination" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM sys_immigration
+        <where>
+            <if test="condition.immigrationName != null and condition.immigrationName != ''">
+                AND immigration_name LIKE CONCAT('%', #{condition.immigrationName}, '%')
+            </if>
+            <if test="condition.immigrationNumber != null and condition.immigrationNumber != ''">
+                AND immigration_number LIKE CONCAT('%', #{condition.immigrationNumber}, '%')
+            </if>
+        </where>
+        ORDER BY id DESC
+        LIMIT #{startIndex}, #{pageSize}
+    </select>
+
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*) FROM sys_immigration
+    </select>
+    <!-- 检查迁入编号是否已存在 -->
+    <select id="countByImmigrationNumber" resultType="int">
+        SELECT COUNT(*) FROM sys_immigration
+        WHERE immigration_number = #{immigrationNumber}
+    </select>
+
+    <!-- 检查迁入编号是否已存在（排除当前ID） -->
+    <select id="countByImmigrationNumberExcludeId" resultType="int">
+        SELECT COUNT(*) FROM sys_immigration
+        WHERE immigration_number = #{immigrationNumber}
+          AND id != #{id}
+    </select>
+    <select id="countByCondition" parameterType="store.bean.Immigration" resultType="int">
+        SELECT COUNT(*) FROM sys_immigration
+        <where>
+            <if test="immigrationName != null and immigrationName != ''">
+                AND immigration_name LIKE CONCAT('%', #{immigrationName}, '%')
+            </if>
+            <if test="immigrationNumber != null and immigrationNumber != ''">
+                AND immigration_number LIKE CONCAT('%', #{immigrationNumber}, '%')
+            </if>
+        </where>
+    </select>
+</mapper>

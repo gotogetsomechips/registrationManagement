@@ -57,6 +57,7 @@
         <input type="hidden" id="id" name="id" value="${vo.id}"/>
         <input type="hidden" id="createBy" name="createBy" value="${vo.createBy}"/>
         <!-- 存储原始数据，用于检查是否有修改 -->
+        <input type="hidden" id="pageNum" name="pageNum" value="${pageNum}"/>
         <input type="hidden" id="originalUsername" value="${vo.username}"/>
         <input type="hidden" id="originalPassword" value="${vo.password}"/>
         <input type="hidden" id="originalRealName" value="${vo.realName}"/>

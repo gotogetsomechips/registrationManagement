@@ -2,6 +2,9 @@ package store.controller;
 
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,27 +26,31 @@ public class FeedbackController {
 
     @RequestMapping("/list")
     public String list(Model model,
-                      @RequestParam(value = "searchColumn", required = false) String searchColumn,
-                      @RequestParam(value = "keyword", required = false) String keyword,
-                      @RequestParam(value = "sortField", required = false) String sortField,
-                      @RequestParam(value = "sortDirection", required = false) String sortDirection,
-                      @RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
-                      @RequestParam(value = "message", required = false) String message) {
+                       @RequestParam(value = "searchColumn", required = false) String searchColumn,
+                       @RequestParam(value = "keyword", required = false) String keyword,
+                       @RequestParam(value = "sortField", required = false) String sortField,
+                       @RequestParam(value = "sortDirection", required = false) String sortDirection,
+                       @RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
+                       HttpSession session) {
+
+        // 从会话中获取闪存消息
+        String flashMessage = (String) session.getAttribute("flash_message");
+        session.removeAttribute("flash_message"); // 立即移除，确保只显示一次
 
         // 添加消息处理
-        if (message != null) {
-            switch (message) {
+        if (flashMessage != null) {
+            switch (flashMessage) {
                 case "add_success":
-                    model.addAttribute("operationMessage", "反馈添加成功！");
+                    model.addAttribute("success", "反馈添加成功！");
                     break;
                 case "edit_success":
-                    model.addAttribute("operationMessage", "反馈修改成功！");
+                    model.addAttribute("success", "反馈修改成功！");
                     break;
                 case "delete_success":
-                    model.addAttribute("operationMessage", "反馈删除成功！");
+                    model.addAttribute("success", "反馈删除成功！");
                     break;
                 case "delete_fail":
-                    model.addAttribute("operationMessage", "反馈删除失败！");
+                    model.addAttribute("error", "反馈删除失败！");
                     break;
             }
         }
@@ -86,9 +93,9 @@ public class FeedbackController {
 
         // 获取分页反馈列表（加入排序条件）
         List<Feedback> feedbackList;
-        String orderBy = (sortField != null && sortDirection != null) ? 
+        String orderBy = (sortField != null && sortDirection != null) ?
                          sortField + " " + sortDirection : "id DESC";
-        
+
         if (condition.getFeedbackName() != null || condition.getFeedbackPhone() != null || condition.getFeedbackTitle() != null) {
             feedbackList = feedbackService.getFeedbacksByConditionOrderByWithPagination(condition, orderBy, startIndex, PAGE_SIZE);
         } else {
@@ -111,10 +118,15 @@ public class FeedbackController {
     }
 
     @RequestMapping("/add")
-    public String add(Feedback feedback, HttpServletRequest request) {
+    public String add(Feedback feedback, HttpServletRequest request, HttpSession session) {
         // 验证反馈人姓名
         if (feedback.getFeedbackName() == null || feedback.getFeedbackName().isEmpty()) {
             request.setAttribute("error", "反馈人姓名不能为空");
+            return "feedback_add";
+        }
+        // 验证反馈人姓名是否已存在
+        if (feedbackService.isFeedbackNameExist(feedback.getFeedbackName())) {
+            request.setAttribute("error", "反馈人姓名已存在");
             return "feedback_add";
         }
 
@@ -132,7 +144,8 @@ public class FeedbackController {
 
         int result = feedbackService.addFeedback(feedback);
         if (result > 0) {
-            return "redirect:/feedback/list?message=add_success";
+            session.setAttribute("flash_message", "add_success");
+            return "redirect:/feedback/list";
         } else {
             request.setAttribute("error", "添加反馈失败");
             return "feedback_add";
@@ -140,7 +153,8 @@ public class FeedbackController {
     }
 
     @RequestMapping("/edit")
-    public String edit(Feedback feedback, HttpServletRequest request) {
+    public String edit(Feedback feedback, HttpServletRequest request,
+                       @RequestParam(value = "pageNum", defaultValue = "1") int pageNum, HttpSession session) {
         // 验证反馈人姓名
         if (feedback.getFeedbackName() == null || feedback.getFeedbackName().isEmpty()) {
             request.setAttribute("error", "反馈人姓名不能为空");
@@ -156,7 +170,13 @@ public class FeedbackController {
             request.setAttribute("vo", originalFeedback);
             return "feedback_edit";
         }
-
+        // 验证反馈人姓名是否已存在（排除当前记录）
+        if (feedbackService.isFeedbackNameExistExcludeId(feedback.getFeedbackName(), feedback.getId())) {
+            request.setAttribute("error", "反馈人姓名已存在");
+            Feedback originalFeedback = feedbackService.getFeedbackById(feedback.getId());
+            request.setAttribute("vo", originalFeedback);
+            return "feedback_edit";
+        }
         // 验证标题
         if (feedback.getFeedbackTitle() == null || feedback.getFeedbackTitle().isEmpty()) {
             request.setAttribute("error", "反馈标题不能为空");
@@ -183,7 +203,8 @@ public class FeedbackController {
 
         int result = feedbackService.updateFeedback(feedback);
         if (result > 0) {
-            return "redirect:/feedback/list?message=edit_success";
+            session.setAttribute("flash_message", "edit_success");
+            return "redirect:/feedback/list?pageNum=" + pageNum;
         } else {
             request.setAttribute("error", "更新反馈失败");
             request.setAttribute("vo", originalFeedback);
@@ -192,14 +213,18 @@ public class FeedbackController {
     }
 
     @RequestMapping("/delete")
-    public String delete(@RequestParam("id") Integer id, HttpServletRequest request) {
+    public String delete(@RequestParam("id") Integer id,
+                         @RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
+                         HttpSession session) {
         int result = feedbackService.deleteFeedback(id);
         if (result > 0) {
-            return "redirect:/feedback/list?message=delete_success";
+            session.setAttribute("flash_message", "delete_success");
         } else {
-            return "redirect:/feedback/list?message=delete_fail";
+            session.setAttribute("flash_message", "delete_fail");
         }
+        return "redirect:/feedback/list?pageNum=" + pageNum;
     }
+
 
     @RequestMapping("/info")
     public String info(@RequestParam("id") Integer id, Model model) {
@@ -214,9 +239,11 @@ public class FeedbackController {
     }
 
     @RequestMapping("/toEdit")
-    public String toEdit(@RequestParam("id") Integer id, Model model) {
+    public String toEdit(@RequestParam("id") Integer id, Model model,
+                         @RequestParam(value = "pageNum", defaultValue = "1") int pageNum) {
         Feedback feedback = feedbackService.getFeedbackById(id);
         model.addAttribute("vo", feedback);
+        model.addAttribute("pageNum", pageNum);
         return "feedback_edit";
     }
 }

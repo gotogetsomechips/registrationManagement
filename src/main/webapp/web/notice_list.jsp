@@ -3,7 +3,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
-<html lang="en" xmlns:c="http://www.w3.org/1999/XSL/Transform">
+
 <head>
     <meta charset="utf-8"/>
     <title>公告管理</title>

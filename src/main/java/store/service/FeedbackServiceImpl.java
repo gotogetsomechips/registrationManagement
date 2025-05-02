@@ -46,7 +46,17 @@ public class FeedbackServiceImpl implements FeedbackService {
     public List<Feedback> getAllFeedbacksOrderBy(String orderBy) {
         return feedbackMapper.selectAllOrderBy(orderBy);
     }
+    @Override
+    public boolean isFeedbackNameExist(String feedbackName) {
+        Feedback condition = new Feedback();
+        condition.setFeedbackName(feedbackName);
+        return feedbackMapper.countByCondition(condition) > 0;
+    }
 
+    @Override
+    public boolean isFeedbackNameExistExcludeId(String feedbackName, Integer excludeId) {
+        return feedbackMapper.countByNameExcludeId(feedbackName, excludeId) > 0;
+    }
     @Override
     public List<Feedback> getAllFeedbacksWithPagination(int startIndex, int pageSize) {
         return feedbackMapper.selectAllWithPagination(startIndex, pageSize);

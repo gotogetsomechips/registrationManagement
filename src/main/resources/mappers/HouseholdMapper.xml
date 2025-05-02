@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.mapper.HouseholdMapper">
+    <resultMap id="BaseResultMap" type="store.bean.Household">
+        <id column="id" property="id" />
+        <result column="household_name" property="householdName" />
+        <result column="gender" property="gender" />
+        <result column="phone" property="phone" />
+        <result column="district" property="district" />
+        <result column="house_number" property="houseNumber" />
+        <result column="unit" property="unit" />
+        <result column="house_type" property="houseType" />
+        <result column="create_time" property="createTime" />
+        <result column="create_by" property="createBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="status" property="status" />
+        <result column="remark" property="remark" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, household_name, gender, phone, district, house_number, unit, house_type,
+        create_time, create_by, update_time, update_by, status, remark
+    </sql>
+
+    <insert id="insert" parameterType="store.bean.Household" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO household (
+            household_name, gender, phone, district, house_number,
+            unit, house_type, create_by, remark
+        ) VALUES (
+                     #{householdName}, #{gender}, #{phone}, #{district}, #{houseNumber},
+                     #{unit}, #{houseType}, #{createBy}, #{remark}
+                 )
+    </insert>
+
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM household WHERE id = #{id}
+    </delete>
+
+    <update id="update" parameterType="store.bean.Household">
+        UPDATE household
+        <set>
+            <if test="householdName != null">household_name = #{householdName},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="district != null">district = #{district},</if>
+            <if test="houseNumber != null">house_number = #{houseNumber},</if>
+            <if test="unit != null">unit = #{unit},</if>
+            <if test="houseType != null">house_type = #{houseType},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" parameterType="int" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM household
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM household
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectByCondition" parameterType="store.bean.Household" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM household
+        <where>
+            <if test="householdName != null and householdName != ''">
+                AND household_name LIKE CONCAT('%', #{householdName}, '%')
+            </if>
+            <if test="phone != null and phone != ''">
+                AND phone LIKE CONCAT('%', #{phone}, '%')
+            </if>
+            <if test="district != null and district != ''">
+                AND district LIKE CONCAT('%', #{district}, '%')
+            </if>
+        </where>
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectAllWithPagination" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM household
+        ORDER BY id DESC
+        LIMIT #{startIndex}, #{pageSize}
+    </select>
+
+    <select id="selectByConditionWithPagination" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM household
+        <where>
+            <if test="condition.householdName != null and condition.householdName != ''">
+                AND household_name LIKE CONCAT('%', #{condition.householdName}, '%')
+            </if>
+            <if test="condition.phone != null and condition.phone != ''">
+                AND phone LIKE CONCAT('%', #{condition.phone}, '%')
+            </if>
+            <if test="condition.district != null and condition.district != ''">
+                AND district LIKE CONCAT('%', #{condition.district}, '%')
+            </if>
+        </where>
+        ORDER BY id DESC
+        LIMIT #{startIndex}, #{pageSize}
+    </select>
+
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*) FROM household
+    </select>
+    <!-- 根据姓名查询户籍 -->
+    <select id="selectByName" resultType="store.bean.Household" parameterType="java.lang.String">
+        SELECT * FROM household WHERE household_name = #{householdName} LIMIT 1
+    </select>
+
+    <!-- 根据姓名统计户籍数量（排除指定ID） -->
+    <select id="countByName" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM household
+        WHERE household_name = #{householdName}
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+    </select>
+    <select id="countByCondition" parameterType="store.bean.Household" resultType="int">
+        SELECT COUNT(*) FROM household
+        <where>
+            <if test="householdName != null and householdName != ''">
+                AND household_name LIKE CONCAT('%', #{householdName}, '%')
+            </if>
+            <if test="phone != null and phone != ''">
+                AND phone LIKE CONCAT('%', #{phone}, '%')
+            </if>
+            <if test="district != null and district != ''">
+                AND district LIKE CONCAT('%', #{district}, '%')
+            </if>
+        </where>
+    </select>
+</mapper>

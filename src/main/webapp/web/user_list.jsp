@@ -44,13 +44,13 @@
             <a class="btn btn-grad btn-info btn-sm" href="list">用户管理</a>
         </div>
         <div class="index-nav-frame-line" tabindex="-1">
-            <a class="btn btn-grad btn-info btn-sm" href="feedback_list.jsp">反馈管理</a>
+            <a class="btn btn-grad btn-info btn-sm" href="../feedback/list">反馈管理</a>
         </div>
         <div class="index-nav-frame-line" tabindex="-1">
-            <a class="btn btn-grad btn-info btn-sm" href="household_list.jsp">户籍管理</a>
+            <a class="btn btn-grad btn-info btn-sm" href="../household/list">户籍管理</a>
         </div>
         <div class="index-nav-frame-line" tabindex="-1">
-            <a class="btn btn-grad btn-info btn-sm" href="immigration_list.jsp">迁入管理</a>
+            <a class="btn btn-grad btn-info btn-sm" href="../immigration/list">迁入管理</a>
         </div>
         <div class="index-nav-frame-line" tabindex="-1">
             <a class="btn btn-grad btn-info btn-sm" href="outmigration_list.jsp">迁出管理</a>
@@ -126,7 +126,7 @@
                         <button class="btn btn-grad btn-danger btn-sm" style="padding: 0px 1px;"
                                 onclick="window.location.href='info?id=${vo.id}'">详情</button>&nbsp;
                         <button class="btn btn-grad btn-danger btn-sm" style="padding: 0px 1px;"
-                                onclick="window.location.href='toEdit?id=${vo.id}'">编辑</button>&nbsp;
+                                onclick="window.location.href='toEdit?id=${vo.id}&pageNum=${pageNum}'">编辑</button>&nbsp;
                         <button class="btn btn-grad btn-danger btn-sm" style="padding: 0px 1px;"
                                 onclick="confirmDelete(${vo.id}, '${vo.realName}')">删除</button>
                     </td>
@@ -211,7 +211,7 @@
 
     function confirmDelete(id, name) {
         if (confirm('确定要删除用户：' + name + '吗？')) {
-            window.location.href = 'delete?id=' + id;
+            window.location.href = 'delete?id=' + id + '&pageNum=${pageNum}';
         }
     }
 

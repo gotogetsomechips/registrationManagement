@@ -138,7 +138,13 @@
     <select id="countAll" resultType="int">
         SELECT COUNT(*) FROM sys_feedback
     </select>
-
+    <select id="countByNameExcludeId" resultType="int">
+        SELECT COUNT(*) FROM sys_feedback
+        WHERE feedback_name = #{feedbackName}
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+    </select>
     <select id="countByCondition" parameterType="store.bean.Feedback" resultType="int">
         SELECT COUNT(*) FROM sys_feedback
         <where>

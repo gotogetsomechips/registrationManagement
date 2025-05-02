@@ -140,7 +140,8 @@ public class UserController {
     }
 
     @RequestMapping("/edit")
-    public String edit(User user, HttpServletRequest request) {
+    public String edit(User user, HttpServletRequest request,
+                      @RequestParam(value = "pageNum", defaultValue = "1") int pageNum){
         // 验证用户名
         if (user.getUsername() == null || user.getUsername().isEmpty()) {
             request.setAttribute("error", "用户名不能为空");
@@ -197,7 +198,8 @@ public class UserController {
         if (result > 0) {
             // 修改成功，设置成功消息
 
-            return "redirect:/user/list?message=edit_success";
+            return "redirect:/user/list?message=edit_success&pageNum=" + pageNum;
+
         } else {
             request.setAttribute("error", "更新用户失败");
             request.setAttribute("vo", originalUser);
@@ -206,12 +208,13 @@ public class UserController {
     }
 
     @RequestMapping("/delete")
-    public String delete(@RequestParam("id") Integer id, HttpServletRequest request) {
+    public String delete(@RequestParam("id") Integer id,
+                        @RequestParam(value = "pageNum", defaultValue = "1") int pageNum){
         int result = userService.deleteUser(id);
         if (result > 0) {
-            return "redirect:/user/list?message=delete_success";
+            return "redirect:/user/list?message=delete_success&pageNum=" + pageNum;
         } else {
-            return "redirect:/user/list?message=delete_fail";
+            return "redirect:/user/list?message=delete_success&pageNum=" + pageNum;
         }
     }
     @RequestMapping("/info")
@@ -227,9 +230,12 @@ public class UserController {
     }
 
     @RequestMapping("/toEdit")
-    public String toEdit(@RequestParam("id") Integer id, Model model) {
-        User user = userService.getUserById(id);
-        model.addAttribute("vo", user);
+    public String toEdit(@RequestParam("id") Integer id,
+                        @RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
+                        Model model) {
+                User user = userService.getUserById(id);
+                model.addAttribute("vo", user);
+                model.addAttribute("pageNum", pageNum);
         return "user_edit";
     }
 

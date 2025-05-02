@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.mapper.OutmigrationMapper">
+    <resultMap id="BaseResultMap" type="store.bean.Outmigration">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="gender" property="gender" />
+        <result column="amount" property="amount" />
+        <result column="payment_method" property="paymentMethod" />
+        <result column="collector" property="collector" />
+        <result column="out_time" property="outTime" />
+        <result column="remarks" property="remarks" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+    <select id="selectByName" parameterType="string" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM outmigration
+        WHERE name = #{name}
+        LIMIT 1
+    </select>
+
+    <select id="selectByNameExcludeId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM outmigration
+        WHERE name = #{name} AND id != #{id}
+        LIMIT 1
+    </select>
+    <sql id="Base_Column_List">
+        id, name, gender, amount, payment_method, collector, out_time, remarks,
+        create_by, create_time, update_by, update_time
+    </sql>
+
+    <insert id="insert" parameterType="store.bean.Outmigration" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO outmigration (
+            name, gender, amount, payment_method, collector,
+            out_time, remarks, create_by
+        ) VALUES (
+                     #{name}, #{gender}, #{amount}, #{paymentMethod}, #{collector},
+                     #{outTime}, #{remarks}, #{createBy}
+                 )
+    </insert>
+
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM outmigration WHERE id = #{id}
+    </delete>
+
+    <update id="update" parameterType="store.bean.Outmigration">
+        UPDATE outmigration
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="paymentMethod != null">payment_method = #{paymentMethod},</if>
+            <if test="collector != null">collector = #{collector},</if>
+            <if test="outTime != null">out_time = #{outTime},</if>
+            <if test="remarks != null">remarks = #{remarks},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" parameterType="int" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM outmigration
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM outmigration
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectByCondition" parameterType="store.bean.Outmigration" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM outmigration
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+        </where>
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectAllOrderBy" parameterType="string" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM outmigration
+        ORDER BY ${orderBy}
+    </select>
+
+    <!-- 分页相关方法 -->
+    <select id="selectAllWithPagination" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM outmigration
+        ORDER BY id DESC
+        LIMIT #{startIndex}, #{pageSize}
+    </select>
+
+    <select id="selectByConditionWithPagination" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM outmigration
+        <where>
+            <if test="condition.name != null and condition.name != ''">
+                AND name LIKE CONCAT('%', #{condition.name}, '%')
+            </if>
+        </where>
+        ORDER BY id DESC
+        LIMIT #{startIndex}, #{pageSize}
+    </select>
+
+    <select id="selectByConditionOrderByWithPagination" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM outmigration
+        <where>
+            <if test="condition.name != null and condition.name != ''">
+                AND name LIKE CONCAT('%', #{condition.name}, '%')
+            </if>
+        </where>
+        ORDER BY ${orderBy}
+        LIMIT #{startIndex}, #{pageSize}
+    </select>
+
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*) FROM outmigration
+    </select>
+
+    <select id="countByCondition" parameterType="store.bean.Outmigration" resultType="int">
+        SELECT COUNT(*) FROM outmigration
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+        </where>
+    </select>
+</mapper>

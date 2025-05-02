@@ -1,7 +1,7 @@
 package store.service;
 
 import java.util.List;
-import store.bean.Feed;
+import store.bean.Feedback;
 
 public interface FeedbackService {
     int addFeedback(Feedback feedback);
@@ -11,8 +11,8 @@ public interface FeedbackService {
     List<Feedback> getAllFeedbacks();
     List<Feedback> getFeedbacksByCondition(Feedback condition);
     List<Feedback> getAllFeedbacksOrderBy(String orderBy);
-    
-    // 分页相关的方法
+    boolean isFeedbackNameExist(String feedbackName);
+    boolean isFeedbackNameExistExcludeId(String feedbackName, Integer excludeId);    // 分页相关的方法
     List<Feedback> getAllFeedbacksWithPagination(int startIndex, int pageSize);
     List<Feedback> getFeedbacksByConditionWithPagination(Feedback condition, int startIndex, int pageSize);
     List<Feedback> getAllFeedbacksOrderByWithPagination(String orderBy, int startIndex, int pageSize);

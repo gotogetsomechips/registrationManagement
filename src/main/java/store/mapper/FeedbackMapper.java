@@ -12,7 +12,7 @@ public interface FeedbackMapper {
     List<Feedback> selectAll();
     List<Feedback> selectByCondition(Feedback condition);
     List<Feedback> selectAllOrderBy(String orderBy);
-
+    int countByNameExcludeId(@Param("feedbackName") String feedbackName, @Param("excludeId") Integer excludeId);
     // 分页相关的方法
     List<Feedback> selectAllWithPagination(@Param("startIndex") int startIndex, @Param("pageSize") int pageSize);
     List<Feedback> selectByConditionWithPagination(@Param("condition") Feedback condition, @Param("startIndex") int startIndex, @Param("pageSize") int pageSize);
