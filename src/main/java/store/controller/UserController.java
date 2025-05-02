@@ -154,6 +154,9 @@ public class UserController {
         // 获取原始用户数据
         User originalUser = userService.getUserById(user.getId());
 
+        if(originalUser.getStatus() == 0 && user.getStatus() == 1) {
+            user.setTryCount(0);  // 重置尝试次数
+        }
         // 检查用户名是否已被修改，如果修改了，需要检查唯一性
         if (!user.getUsername().equals(originalUser.getUsername())) {
             if (userService.isUsernameExist(user.getUsername())) {
@@ -183,10 +186,10 @@ public class UserController {
                 !user.getRealName().equals(originalUser.getRealName()) ||
                 !user.getUserSex().equals(originalUser.getUserSex()) ||
                 !user.getUserPhone().equals(originalUser.getUserPhone()) ||
-                // 备注可能为null，需要特殊处理
                 (user.getUserText() == null && originalUser.getUserText() != null) ||
                 (user.getUserText() != null && !user.getUserText().equals(originalUser.getUserText())) ||
-                !user.getUserType().equals(originalUser.getUserType());
+                !user.getUserType().equals(originalUser.getUserType()) ||
+                !user.getStatus().equals(originalUser.getStatus());  // 添加状态检查
 
         if (!hasChanged) {
             request.setAttribute("error", "未做任何修改，无需提交");

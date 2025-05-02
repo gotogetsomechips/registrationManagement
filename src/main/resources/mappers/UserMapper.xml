@@ -49,7 +49,7 @@
             <if test="userType != null">user_type = #{userType},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="status != null">status = #{status},</if>
-            <if test="tryCount != null">try_count = #{tryCount},</if>
+            <if test="tryCount != null">try_count = #{tryCount},</if>  <!-- 确保这行存在 -->
         </set>
         WHERE id = #{id}
     </update>

@@ -37,7 +37,7 @@
         </div>
 
         <div class="index-nav-frame-line" style="float: right;" tabindex="-1">
-            <a href="AuthServlet?action=logout" class="btn btn-grad btn-info btn-sm">退出</a>
+            <a href="${pageContext.request.contextPath}/auth/logout" class="btn btn-grad btn-info btn-sm">退出</a>
         </div>
         <div class="index-nav-frame-line" style="float: right;color: #000000;width: 200px">
             欢迎：<a>${loginUser.username}</a>

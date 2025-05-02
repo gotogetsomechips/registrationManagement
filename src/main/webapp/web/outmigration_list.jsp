@@ -41,26 +41,26 @@
             <img src="${pageContext.request.contextPath}/img/icon.png"/>
         </div>
         <div class="index-nav-frame-line" tabindex="-1">
-            <a class="btn btn-grad btn-info btn-sm" href="user_list.jsp">用户管理</a>
+            <a class="btn btn-grad btn-info btn-sm" href="${pageContext.request.contextPath}/user/list">用户管理</a>
         </div>
         <div class="index-nav-frame-line" tabindex="-1">
-            <a class="btn btn-grad btn-info btn-sm" href="feedback_list.jsp">反馈管理</a>
+            <a class="btn btn-grad btn-info btn-sm" href="${pageContext.request.contextPath}/feedback/list">反馈管理</a>
         </div>
         <div class="index-nav-frame-line" tabindex="-1">
-            <a class="btn btn-grad btn-info btn-sm" href="household_list.jsp">户籍管理</a>
+            <a class="btn btn-grad btn-info btn-sm" href="${pageContext.request.contextPath}/household/list">户籍管理</a>
         </div>
         <div class="index-nav-frame-line" tabindex="-1">
-            <a class="btn btn-grad btn-info btn-sm" href="immigration_list.jsp">迁入管理</a>
+            <a class="btn btn-grad btn-info btn-sm" href="${pageContext.request.contextPath}/immigration/list">迁入管理</a>
         </div>
         <div class="index-nav-frame-line" tabindex="-1">
-            <a class="btn btn-grad btn-info btn-sm" href="outmigration_list.jsp">迁出管理</a>
+            <a class="btn btn-grad btn-info btn-sm" href="${pageContext.request.contextPath}/outmigration/list">迁出管理</a>
         </div>
         <div class="index-nav-frame-line" tabindex="-1">
-            <a class="btn btn-grad btn-info btn-sm" href="notice_list.jsp">公告管理</a>
+            <a class="btn btn-grad btn-info btn-sm" href="${pageContext.request.contextPath}/notice/list">公告管理</a>
         </div>
 
         <div class="index-nav-frame-line" style="float: right;" tabindex="-1">
-            <a href="AuthServlet?action=logout" class="btn btn-grad btn-info btn-sm">退出</a>
+            <a href="${pageContext.request.contextPath}/auth/logout" class="btn btn-grad btn-info btn-sm">退出</a>
         </div>
         <div class="index-nav-frame-line" style="float: right;color: #000000;width: 200px">
             欢迎：<a>${loginUser.username}</a>

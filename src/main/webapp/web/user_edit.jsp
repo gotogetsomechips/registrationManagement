@@ -39,7 +39,7 @@
         </div>
 
         <div class="index-nav-frame-line" style="float: right;" tabindex="-1">
-            <a href="AuthServlet?action=logout" class="btn btn-grad btn-info btn-sm">退出</a>
+            <a href="${pageContext.request.contextPath}/auth/logout" class="btn btn-grad btn-info btn-sm">退出</a>
         </div>
         <div class="index-nav-frame-line" style="float: right;color: #000000;width: 200px">
             欢迎：<a>${loginUser.username}</a>
@@ -65,7 +65,7 @@
         <input type="hidden" id="originalUserPhone" value="${vo.userPhone}"/>
         <input type="hidden" id="originalUserText" value="${vo.userText}"/>
         <input type="hidden" id="originalUserType" value="${vo.userType}"/>
-
+        <input type="hidden" id="originalStatus" value="${vo.status}"/>
         <table class="index-content-table-add">
             <tr>
                 <td width="12%">用户名：</td>
@@ -105,6 +105,13 @@
             <tr>
                 <td width="12%">备注：</td>
                 <td><textarea id="userText" name="userText" style="width: 60%; height: 100px;padding: 0px 17px;" placeholder="请输入内容......">${vo.userText}</textarea></td>
+            </tr>
+            <tr>
+                <td width="12%">账户状态：</td>
+                <td>
+                    <input name="status" type="radio" value="1" ${vo.status==1 || vo.status==null?'checked':''}/>&nbsp;&nbsp;&nbsp;正常&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input name="status" type="radio" value="0" ${vo.status==0?'checked':''}/>&nbsp;&nbsp;&nbsp;锁定&nbsp;&nbsp;&nbsp;&nbsp;
+                </td>
             </tr>
             <tr>
                 <td width="12%">类型：</td>
@@ -210,6 +217,16 @@
             }
         }
 
+        // 获取选中的账户状态
+        let status = "";
+        const statusRadios = document.getElementsByName("status");
+        for (let i = 0; i < statusRadios.length; i++) {
+            if (statusRadios[i].checked) {
+                status = statusRadios[i].value;
+                break;
+            }
+        }
+
         // 获取原始值
         const originalUsername = document.getElementById("originalUsername").value;
         const originalPassword = document.getElementById("originalPassword").value;
@@ -218,6 +235,7 @@
         const originalUserPhone = document.getElementById("originalUserPhone").value;
         const originalUserText = document.getElementById("originalUserText").value;
         const originalUserType = document.getElementById("originalUserType").value;
+        const originalStatus = document.getElementById("originalStatus").value;
 
         // 检查是否有任何字段被修改
         return (
@@ -227,7 +245,8 @@
             userSex !== originalUserSex ||
             userPhone !== originalUserPhone ||
             userText !== originalUserText ||
-            userType !== originalUserType
+            userType !== originalUserType ||
+            status !== originalStatus
         );
     }
 

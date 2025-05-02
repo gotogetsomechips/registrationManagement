@@ -8,6 +8,7 @@ public interface UserService {
     int deleteUser(Integer id);
     int updateUser(User user);
     User getUserById(Integer id);
+    User getUserByUsername(String username); // 新增方法
     List<User> getAllUsers();
     List<User> getUsersByCondition(User condition);
     boolean isUsernameExist(String username);
