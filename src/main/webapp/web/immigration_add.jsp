@@ -1,13 +1,12 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
-    <title>修改迁入</title>
+    <title>添加迁入</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/index.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -70,48 +69,38 @@
 </div>
 <div class="index-content">
     <div class="index-content-operation">
-        <a class="info-detail">修改迁入</a>
+        <a class="info-detail">添加迁入</a>
         <br>
         <br>
     </div>
     <br>
-    <form action="/registrationManagementSystem_war/immigration/edit" method="post" onsubmit="return check()" id="immigrationForm">
-        <input type="hidden" id="id" name="id" value="${vo.id}"/>
-        <input type="hidden" id="createBy" name="createBy" value="${vo.createBy}"/>
-        <!-- 存储原始数据，用于检查是否有修改 -->
-        <input type="hidden" id="pageNum" name="pageNum" value="${pageNum}"/>
-        <input type="hidden" id="originalImmigrationName" value="${vo.immigrationName}"/>
-        <input type="hidden" id="originalImmigrationNumber" value="${vo.immigrationNumber}"/>
-        <input type="hidden" id="originalImmigrationDate" value="<fmt:formatDate value='${vo.immigrationDate}' pattern='yyyy-MM-dd'/>"/>
-        <input type="hidden" id="originalImmigrationText" value="${vo.immigrationText}"/>
-
+    <form action="/registrationManagementSystem_war/immigration/add" method="post" onsubmit="return check()" id="immigrationForm">
         <table class="index-content-table-add">
             <tr>
                 <td width="12%">姓名：</td>
                 <td>
-                    <input class="index-content-table-td-add" type="text" id="immigrationName" name="immigrationName" value="${vo.immigrationName}"/>
+                    <input class="index-content-table-td-add" type="text" id="immigrationName" name="immigrationName" value=""/>
                     <div id="immigrationNameError" class="error-message"></div>
                 </td>
             </tr>
             <tr>
                 <td width="12%">迁入编号：</td>
                 <td>
-                    <input class="index-content-table-td-add" type="text" id="immigrationNumber" name="immigrationNumber" value="${vo.immigrationNumber}"/>
+                    <input class="index-content-table-td-add" type="text" id="immigrationNumber" name="immigrationNumber" value=""/>
                     <div id="immigrationNumberError" class="error-message"></div>
                 </td>
             </tr>
             <tr>
                 <td width="12%">迁入时间：</td>
                 <td>
-                    <input class="index-content-table-td-add" type="text" id="immigrationDate" name="immigrationDate"
-                           value="<fmt:formatDate value='${vo.immigrationDate}' pattern='yyyy-MM-dd'/>"/>
+                    <input class="index-content-table-td-add" type="text" id="immigrationDate" name="immigrationDate" value=""/>
                     <div id="immigrationDateError" class="error-message"></div>
                 </td>
             </tr>
             <tr>
                 <td width="12%">备注：</td>
                 <td>
-                    <textarea id="immigrationText" name="immigrationText" style="width: 60%; height: 100px;padding: 0px 17px;" placeholder="请输入内容......">${vo.immigrationText}</textarea>
+                    <textarea id="immigrationText" name="immigrationText" style="width: 60%; height: 100px;padding: 0px 17px;" placeholder="请输入内容......"></textarea>
                 </td>
             </tr>
         </table>
@@ -172,21 +161,17 @@
     function validateImmigrationNumber() {
         const immigrationNumber = $("#immigrationNumber").val().trim();
         const errorElement = $("#immigrationNumberError");
-        const id = $("#id").val();
 
         if (immigrationNumber.length === 0) {
             showError(errorElement, "迁入编号不能为空!");
             return false;
         }
 
-        // 异步检查迁入编号是否已存在（排除当前记录）
+        // 异步检查迁入编号是否已存在
         $.ajax({
             url: "/registrationManagementSystem_war/immigration/checkNumber",
             type: "POST",
-            data: {
-                number: immigrationNumber,
-                id: id
-            },
+            data: { number: immigrationNumber },
             success: function(response) {
                 if (response === "true") {
                     showError(errorElement, "迁入编号已存在，请使用其他编号!");
@@ -247,35 +232,7 @@
             isValid = false;
         }
 
-        // 检查是否有修改
-        if (!hasChanged()) {
-            alert("未做任何修改，无需提交!");
-            isValid = false;
-        }
-
         return isValid;
-    }
-
-    // 检查是否有字段被修改
-    function hasChanged() {
-        const immigrationName = $("#immigrationName").val().trim();
-        const immigrationNumber = $("#immigrationNumber").val().trim();
-        const immigrationDate = $("#immigrationDate").val().trim();
-        const immigrationText = $("#immigrationText").val();
-
-        // 获取原始值
-        const originalImmigrationName = $("#originalImmigrationName").val();
-        const originalImmigrationNumber = $("#originalImmigrationNumber").val();
-        const originalImmigrationDate = $("#originalImmigrationDate").val();
-        const originalImmigrationText = $("#originalImmigrationText").val();
-
-        // 检查是否有任何字段被修改
-        return (
-            immigrationName !== originalImmigrationName ||
-            immigrationNumber !== originalImmigrationNumber ||
-            immigrationDate !== originalImmigrationDate ||
-            immigrationText !== originalImmigrationText
-        );
     }
 </script>
 </html>
