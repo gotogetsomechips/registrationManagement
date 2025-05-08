@@ -20,12 +20,19 @@ public class HouseholdController {
     private static final int PAGE_SIZE = 10;
     @PostMapping("/checkNameExists")
     @ResponseBody
-    public String checkNameExists(@RequestParam("householdName") String householdName,
-                                  @RequestParam(value = "excludeId", required = false) Integer excludeId) {
-        // 检查姓名是否已存在
-        boolean exists = householdService.isHouseholdNameExists(householdName, excludeId);
+    public String checkNameExists(@RequestParam("householdName") String householdName) {
+        boolean exists = householdService.isHouseholdNameExists(householdName, null);
         return Boolean.toString(exists);
     }
+
+    @PostMapping("/checkNameExistsExcludeId")
+    @ResponseBody
+    public String checkNameExistsExcludeId(@RequestParam("householdName") String householdName,
+                                           @RequestParam("id") Integer id) {
+        boolean exists = householdService.isHouseholdNameExists(householdName, id);
+        return Boolean.toString(exists);
+    }
+
     @RequestMapping("/list")
     public String list(Model model,
                       @RequestParam(value = "searchColumn", required = false) String searchColumn,

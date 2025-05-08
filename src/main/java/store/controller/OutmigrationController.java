@@ -1,12 +1,16 @@
 package store.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import store.bean.Outmigration;
 import store.service.OutmigrationService;
 
@@ -220,5 +224,23 @@ public class OutmigrationController {
         model.addAttribute("vo", outmigration);
         model.addAttribute("pageNum", pageNum);
         return "outmigration_edit";
+    }
+    // 新增异步校验方法
+    @RequestMapping(value = "/checkName", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String, Boolean> checkName(@RequestParam("name") String name) {
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("exists", outmigrationService.getOutmigrationByName(name) != null);
+        return response;
+    }
+
+    @RequestMapping(value = "/checkNameExcludeId", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String, Boolean> checkNameExcludeId(
+            @RequestParam("name") String name,
+            @RequestParam("id") Integer id) {
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("exists", outmigrationService.getOutmigrationByNameExcludeId(name, id) != null);
+        return response;
     }
 }

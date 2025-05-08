@@ -9,6 +9,24 @@
     <title>修改反馈</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/index.css"/>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .success-message {
+            color: green;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .error-input {
+            border: 1px solid red !important;
+        }
+        .success-input {
+            border: 1px solid green !important;
+        }
+    </style>
 </head>
 <body>
 <div class="index-nav">
@@ -53,7 +71,7 @@
         <br>
     </div>
     <br>
-    <form action="/registrationManagementSystem_war/feedback/edit" method="post" onsubmit="return check()">
+    <form action="/registrationManagementSystem_war/feedback/edit" method="post" onsubmit="return check()" id="feedbackForm">
         <input type="hidden" id="id" name="id" value="${vo.id}"/>
         <!-- 存储原始数据，用于检查是否有修改 -->
         <input type="hidden" id="pageNum" name="pageNum" value="${pageNum}"/>
@@ -68,18 +86,21 @@
                 <td width="12%">反馈人：</td>
                 <td>
                     <input class="index-content-table-td-add" type="text" id="feedbackName" name="feedbackName" value="${vo.feedbackName}"/>
+                    <div id="feedbackNameError" class="error-message"></div>
                 </td>
             </tr>
             <tr>
                 <td width="12%">电话：</td>
                 <td>
                     <input class="index-content-table-td-add" type="text" id="feedbackPhone" name="feedbackPhone" value="${vo.feedbackPhone}"/>
+                    <div id="feedbackPhoneError" class="error-message"></div>
                 </td>
             </tr>
             <tr>
                 <td width="12%">标题：</td>
                 <td>
                     <input class="index-content-table-td-add" type="text" id="feedbackTitle" name="feedbackTitle" value="${vo.feedbackTitle}"/>
+                    <div id="feedbackTitleError" class="error-message"></div>
                 </td>
             </tr>
             <tr>
@@ -106,57 +127,142 @@
         <c:if test="${not empty success}">
         alert("${success}");
         </c:if>
+
+        // 绑定输入框的blur事件进行异步校验
+        $("#feedbackName").blur(function() {
+            validateFeedbackName();
+        });
+
+        $("#feedbackPhone").blur(function() {
+            validateFeedbackPhone();
+        });
+
+        $("#feedbackTitle").blur(function() {
+            validateFeedbackTitle();
+        });
     });
 
-    //提交之前进行检查，如果return false，则不允许提交
-    function check() {
-        // 反馈人验证
-        if (document.getElementById("feedbackName").value.trim().length == 0) {
-            alert("反馈人不能为空!");
+    // 验证反馈人姓名
+    function validateFeedbackName() {
+        const feedbackName = $("#feedbackName").val().trim();
+        const errorElement = $("#feedbackNameError");
+        const id = $("#id").val();
+
+        if (feedbackName.length === 0) {
+            showError(errorElement, "反馈人不能为空!");
             return false;
         }
 
-        // 电话验证
-        const phone = document.getElementById("feedbackPhone").value.trim();
-        if (phone.length == 0) {
-            alert("电话不能为空!");
+        // 异步检查反馈人是否已存在（排除当前记录）
+        $.ajax({
+            url: "/registrationManagementSystem_war/feedback/checkNameExcludeId",
+            type: "POST",
+            data: {
+                feedbackName: feedbackName,
+                id: id
+            },
+            success: function(response) {
+                if (response.exists) {
+                    showError(errorElement, "反馈人姓名已存在!");
+                } else {
+                    showSuccess(errorElement, "反馈人姓名可用");
+                }
+            },
+            error: function() {
+                showError(errorElement, "验证失败，请稍后重试");
+            }
+        });
+
+        return true;
+    }
+
+    // 验证电话
+    function validateFeedbackPhone() {
+        const phone = $("#feedbackPhone").val().trim();
+        const errorElement = $("#feedbackPhoneError");
+
+        if (phone.length === 0) {
+            showError(errorElement, "电话不能为空!");
             return false;
         }
 
         // 验证手机号格式 (中国大陆11位手机号)
         const phoneRegex = /^1[3-9]\d{9}$/;
         if (!phoneRegex.test(phone)) {
-            alert("请输入有效的11位手机号码!");
+            showError(errorElement, "请输入有效的11位手机号码!");
             return false;
         }
 
-        // 标题验证
-        if (document.getElementById("feedbackTitle").value.trim().length == 0) {
-            alert("标题不能为空!");
+        showSuccess(errorElement, "手机号码格式正确");
+        return true;
+    }
+
+    // 验证标题
+    function validateFeedbackTitle() {
+        const feedbackTitle = $("#feedbackTitle").val().trim();
+        const errorElement = $("#feedbackTitleError");
+
+        if (feedbackTitle.length === 0) {
+            showError(errorElement, "标题不能为空!");
             return false;
+        }
+
+        showSuccess(errorElement, "标题有效");
+        return true;
+    }
+
+    // 显示错误信息
+    function showError(element, message) {
+        element.text(message).removeClass("success-message").addClass("error-message");
+        element.prev().removeClass("success-input").addClass("error-input");
+    }
+
+    // 显示成功信息
+    function showSuccess(element, message) {
+        element.text(message).removeClass("error-message").addClass("success-message");
+        element.prev().removeClass("error-input").addClass("success-input");
+    }
+
+    //提交之前进行检查
+    function check() {
+        let isValid = true;
+
+        // 验证反馈人
+        if (!validateFeedbackName()) {
+            isValid = false;
+        }
+
+        // 验证电话
+        if (!validateFeedbackPhone()) {
+            isValid = false;
+        }
+
+        // 验证标题
+        if (!validateFeedbackTitle()) {
+            isValid = false;
         }
 
         // 检查是否有修改
         if (!hasChanged()) {
             alert("未做任何修改，无需提交!");
-            return false;
+            isValid = false;
         }
 
-        return true;
+        return isValid;
     }
 
     // 检查是否有字段被修改
     function hasChanged() {
-        const feedbackName = document.getElementById("feedbackName").value.trim();
-        const feedbackPhone = document.getElementById("feedbackPhone").value.trim();
-        const feedbackTitle = document.getElementById("feedbackTitle").value.trim();
-        const feedbackText = document.getElementById("feedbackText").value;
+        const feedbackName = $("#feedbackName").val().trim();
+        const feedbackPhone = $("#feedbackPhone").val().trim();
+        const feedbackTitle = $("#feedbackTitle").val().trim();
+        const feedbackText = $("#feedbackText").val();
 
         // 获取原始值
-        const originalFeedbackName = document.getElementById("originalFeedbackName").value;
-        const originalFeedbackPhone = document.getElementById("originalFeedbackPhone").value;
-        const originalFeedbackTitle = document.getElementById("originalFeedbackTitle").value;
-        const originalFeedbackText = document.getElementById("originalFeedbackText").value;
+        const originalFeedbackName = $("#originalFeedbackName").val();
+        const originalFeedbackPhone = $("#originalFeedbackPhone").val();
+        const originalFeedbackTitle = $("#originalFeedbackTitle").val();
+        const originalFeedbackText = $("#originalFeedbackText").val();
 
         // 检查是否有任何字段被修改
         return (

@@ -1,6 +1,8 @@
 package store.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -11,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import store.bean.Feedback;
 import store.service.FeedbackService;
 
@@ -245,5 +248,22 @@ public class FeedbackController {
         model.addAttribute("vo", feedback);
         model.addAttribute("pageNum", pageNum);
         return "feedback_edit";
+    }
+    @RequestMapping(value = "/checkName", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String, Boolean> checkFeedbackName(@RequestParam("feedbackName") String feedbackName) {
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("exists", feedbackService.isFeedbackNameExist(feedbackName));
+        return response;
+    }
+
+    @RequestMapping(value = "/checkNameExcludeId", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String, Boolean> checkFeedbackNameExcludeId(
+            @RequestParam("feedbackName") String feedbackName,
+            @RequestParam("id") Integer id) {
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("exists", feedbackService.isFeedbackNameExistExcludeId(feedbackName, id));
+        return response;
     }
 }

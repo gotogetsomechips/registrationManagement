@@ -13,6 +13,24 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh.js"></script>
+    <style>
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .success-message {
+            color: green;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .error-input {
+            border: 1px solid red !important;
+        }
+        .success-input {
+            border: 1px solid green !important;
+        }
+    </style>
 </head>
 <body>
 <div class="index-nav">
@@ -57,12 +75,13 @@
         <br>
     </div>
     <br>
-    <form action="${pageContext.request.contextPath}/outmigration/add" method="post" onsubmit="return check()">
+    <form action="${pageContext.request.contextPath}/outmigration/add" method="post" onsubmit="return check()" id="outmigrationForm">
         <table class="index-content-table-add">
             <tr>
                 <td width="12%">姓名：</td>
                 <td>
                     <input class="index-content-table-td-add" type="text" id="name" name="name" value=""/>
+                    <div id="nameError" class="error-message"></div>
                 </td>
             </tr>
             <tr>
@@ -76,6 +95,7 @@
                 <td width="12%">迁出金额：</td>
                 <td>
                     <input class="index-content-table-td-add" type="number" id="amount" name="amount" value=""/>
+                    <div id="amountError" class="error-message"></div>
                 </td>
             </tr>
             <tr>
@@ -88,18 +108,21 @@
                         <option value="支付宝">支付宝</option>
                         <option value="银行卡">银行卡</option>
                     </select>
+                    <div id="paymentMethodError" class="error-message"></div>
                 </td>
             </tr>
             <tr>
                 <td width="12%">收费人员：</td>
                 <td>
                     <input class="index-content-table-td-add" type="text" id="collector" name="collector" value=""/>
+                    <div id="collectorError" class="error-message"></div>
                 </td>
             </tr>
             <tr>
                 <td width="12%">迁出时间：</td>
                 <td>
                     <input class="index-content-table-td-add" type="text" id="outTime" name="outTime" value="" readonly/>
+                    <div id="outTimeError" class="error-message"></div>
                 </td>
             </tr>
             <tr>
@@ -134,46 +157,162 @@
             defaultDate: new Date(),
             maxDate: new Date()
         });
+
+        // 绑定输入框的blur事件进行异步校验
+        $("#name").blur(function() {
+            validateName();
+        });
+
+        $("#amount").blur(function() {
+            validateAmount();
+        });
+
+        $("#paymentMethod").blur(function() {
+            validatePaymentMethod();
+        });
+
+        $("#collector").blur(function() {
+            validateCollector();
+        });
+
+        $("#outTime").blur(function() {
+            validateOutTime();
+        });
     });
 
-    // 提交前验证
-    function check() {
-        // 姓名验证
-        if (document.getElementById("name").value.trim().length == 0) {
-            alert("姓名不能为空!");
+    // 验证姓名
+    function validateName() {
+        const name = $("#name").val().trim();
+        const errorElement = $("#nameError");
+
+        if (name.length === 0) {
+            showError(errorElement, "姓名不能为空!");
             return false;
         }
 
-        // 金额验证
-        const amount = document.getElementById("amount").value.trim();
-        if (amount.length == 0) {
-            alert("迁出金额不能为空!");
-            return false;
-        }
-        if (parseFloat(amount) <= 0) {
-            alert("迁出金额必须大于0!");
-            return false;
-        }
-
-        // 缴费方式验证
-        if (document.getElementById("paymentMethod").value.trim().length == 0) {
-            alert("请选择缴费方式!");
-            return false;
-        }
-
-        // 收费人员验证
-        if (document.getElementById("collector").value.trim().length == 0) {
-            alert("收费人员不能为空!");
-            return false;
-        }
-
-        // 迁出时间验证
-        if (document.getElementById("outTime").value.trim().length == 0) {
-            alert("迁出时间不能为空!");
-            return false;
-        }
+        // 异步检查姓名是否已存在
+        $.ajax({
+            url: "${pageContext.request.contextPath}/outmigration/checkName",
+            type: "POST",
+            data: { name: name },
+            success: function(response) {
+                if (response.exists) {
+                    showError(errorElement, "该姓名已存在，请使用其他姓名!");
+                } else {
+                    showSuccess(errorElement, "姓名可用");
+                }
+            },
+            error: function() {
+                showError(errorElement, "验证失败，请稍后重试");
+            }
+        });
 
         return true;
+    }
+
+    // 验证金额
+    function validateAmount() {
+        const amount = $("#amount").val().trim();
+        const errorElement = $("#amountError");
+
+        if (amount.length === 0) {
+            showError(errorElement, "迁出金额不能为空!");
+            return false;
+        }
+
+        if (parseFloat(amount) <= 0) {
+            showError(errorElement, "迁出金额必须大于0!");
+            return false;
+        }
+
+        showSuccess(errorElement, "金额有效");
+        return true;
+    }
+
+    // 验证缴费方式
+    function validatePaymentMethod() {
+        const paymentMethod = $("#paymentMethod").val();
+        const errorElement = $("#paymentMethodError");
+
+        if (!paymentMethod) {
+            showError(errorElement, "请选择缴费方式!");
+            return false;
+        }
+
+        showSuccess(errorElement, "缴费方式有效");
+        return true;
+    }
+
+    // 验证收费人员
+    function validateCollector() {
+        const collector = $("#collector").val().trim();
+        const errorElement = $("#collectorError");
+
+        if (collector.length === 0) {
+            showError(errorElement, "收费人员不能为空!");
+            return false;
+        }
+
+        showSuccess(errorElement, "收费人员有效");
+        return true;
+    }
+
+    // 验证迁出时间
+    function validateOutTime() {
+        const outTime = $("#outTime").val().trim();
+        const errorElement = $("#outTimeError");
+
+        if (outTime.length === 0) {
+            showError(errorElement, "迁出时间不能为空!");
+            return false;
+        }
+
+        showSuccess(errorElement, "迁出时间有效");
+        return true;
+    }
+
+    // 显示错误信息
+    function showError(element, message) {
+        element.text(message).removeClass("success-message").addClass("error-message");
+        element.prev().removeClass("success-input").addClass("error-input");
+    }
+
+    // 显示成功信息
+    function showSuccess(element, message) {
+        element.text(message).removeClass("error-message").addClass("success-message");
+        element.prev().removeClass("error-input").addClass("success-input");
+    }
+
+    //提交之前进行检查
+    function check() {
+        let isValid = true;
+
+        // 验证姓名
+        if (!validateName()) {
+            isValid = false;
+        }
+
+        // 验证金额
+        if (!validateAmount()) {
+            isValid = false;
+        }
+
+        // 验证缴费方式
+        if (!validatePaymentMethod()) {
+            isValid = false;
+        }
+
+        // 验证收费人员
+        if (!validateCollector()) {
+            isValid = false;
+        }
+
+        // 验证迁出时间
+        if (!validateOutTime()) {
+            isValid = false;
+        }
+
+        return isValid;
     }
 </script>
 </html>

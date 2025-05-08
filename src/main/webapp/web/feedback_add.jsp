@@ -9,6 +9,24 @@
     <title>添加反馈</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/index.css"/>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .success-message {
+            color: green;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .error-input {
+            border: 1px solid red !important;
+        }
+        .success-input {
+            border: 1px solid green !important;
+        }
+    </style>
 </head>
 <body>
 <div class="index-nav">
@@ -53,24 +71,27 @@
         <br>
     </div>
     <br>
-    <form action="/registrationManagementSystem_war/feedback/add" method="post" onsubmit="return check()">
+    <form action="/registrationManagementSystem_war/feedback/add" method="post" onsubmit="return check()" id="feedbackForm">
         <table class="index-content-table-add">
             <tr>
                 <td width="12%">反馈人：</td>
                 <td>
                     <input class="index-content-table-td-add" type="text" id="feedbackName" name="feedbackName" value=""/>
+                    <div id="feedbackNameError" class="error-message"></div>
                 </td>
             </tr>
             <tr>
                 <td width="12%">电话：</td>
                 <td>
                     <input class="index-content-table-td-add" type="text" id="feedbackPhone" name="feedbackPhone" value=""/>
+                    <div id="feedbackPhoneError" class="error-message"></div>
                 </td>
             </tr>
             <tr>
                 <td width="12%">标题：</td>
                 <td>
                     <input class="index-content-table-td-add" type="text" id="feedbackTitle" name="feedbackTitle" value=""/>
+                    <div id="feedbackTitleError" class="error-message"></div>
                 </td>
             </tr>
             <tr>
@@ -97,37 +118,118 @@
         <c:if test="${not empty success}">
         alert("${success}");
         </c:if>
+
+        // 绑定输入框的blur事件进行异步校验
+        $("#feedbackName").blur(function() {
+            validateFeedbackName();
+        });
+
+        $("#feedbackPhone").blur(function() {
+            validateFeedbackPhone();
+        });
+
+        $("#feedbackTitle").blur(function() {
+            validateFeedbackTitle();
+        });
     });
 
-    //提交之前进行检查，如果return false，则不允许提交
-    function check() {
-        // 反馈人验证
-        if (document.getElementById("feedbackName").value.trim().length == 0) {
-            alert("反馈人不能为空!");
+    // 验证反馈人姓名
+    function validateFeedbackName() {
+        const feedbackName = $("#feedbackName").val().trim();
+        const errorElement = $("#feedbackNameError");
+
+        if (feedbackName.length === 0) {
+            showError(errorElement, "反馈人不能为空!");
             return false;
         }
 
-        // 电话验证
-        const phone = document.getElementById("feedbackPhone").value.trim();
-        if (phone.length == 0) {
-            alert("电话不能为空!");
+        // 异步检查反馈人是否已存在
+        $.ajax({
+            url: "/registrationManagementSystem_war/feedback/checkName",
+            type: "POST",
+            data: { feedbackName: feedbackName },
+            success: function(response) {
+                if (response.exists) {
+                    showError(errorElement, "反馈人姓名已存在!");
+                } else {
+                    showSuccess(errorElement, "反馈人姓名可用");
+                }
+            },
+            error: function() {
+                showError(errorElement, "验证失败，请稍后重试");
+            }
+        });
+
+        return true;
+    }
+
+    // 验证电话
+    function validateFeedbackPhone() {
+        const phone = $("#feedbackPhone").val().trim();
+        const errorElement = $("#feedbackPhoneError");
+
+        if (phone.length === 0) {
+            showError(errorElement, "电话不能为空!");
             return false;
         }
 
         // 验证手机号格式 (中国大陆11位手机号)
         const phoneRegex = /^1[3-9]\d{9}$/;
         if (!phoneRegex.test(phone)) {
-            alert("请输入有效的11位手机号码!");
+            showError(errorElement, "请输入有效的11位手机号码!");
             return false;
         }
 
-        // 标题验证
-        if (document.getElementById("feedbackTitle").value.trim().length == 0) {
-            alert("标题不能为空!");
-            return false;
-        }
-
+        showSuccess(errorElement, "手机号码格式正确");
         return true;
+    }
+
+    // 验证标题
+    function validateFeedbackTitle() {
+        const feedbackTitle = $("#feedbackTitle").val().trim();
+        const errorElement = $("#feedbackTitleError");
+
+        if (feedbackTitle.length === 0) {
+            showError(errorElement, "标题不能为空!");
+            return false;
+        }
+
+        showSuccess(errorElement, "标题有效");
+        return true;
+    }
+
+    // 显示错误信息
+    function showError(element, message) {
+        element.text(message).removeClass("success-message").addClass("error-message");
+        element.prev().removeClass("success-input").addClass("error-input");
+    }
+
+    // 显示成功信息
+    function showSuccess(element, message) {
+        element.text(message).removeClass("error-message").addClass("success-message");
+        element.prev().removeClass("error-input").addClass("success-input");
+    }
+
+    //提交之前进行检查
+    function check() {
+        let isValid = true;
+
+        // 验证反馈人
+        if (!validateFeedbackName()) {
+            isValid = false;
+        }
+
+        // 验证电话
+        if (!validateFeedbackPhone()) {
+            isValid = false;
+        }
+
+        // 验证标题
+        if (!validateFeedbackTitle()) {
+            isValid = false;
+        }
+
+        return isValid;
     }
 </script>
 </html>
