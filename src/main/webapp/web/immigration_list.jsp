@@ -189,9 +189,13 @@
     // 页面加载时设置排序指示器
     $(document).ready(function() {
         if (currentSort.field) {
-            updateSortIndicator(currentSort.field);
+            // 延迟执行以确保表格数据已加载
+            setTimeout(function() {
+                sortTable(currentSort.field, false); // false表示不更新URL
+                sortTable(currentSort.field, false);
+                updateSortIndicator(currentSort.field);
+            }, 100);
         }
-
         // 处理操作消息
         const urlParams = new URLSearchParams(window.location.search);
         const message = urlParams.get('message');

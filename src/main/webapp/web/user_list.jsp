@@ -53,7 +53,7 @@
             <a class="btn btn-grad btn-info btn-sm" href="../immigration/list">迁入管理</a>
         </div>
         <div class="index-nav-frame-line" tabindex="-1">
-            <a class="btn btn-grad btn-info btn-sm" href="outmigration_list.jsp">迁出管理</a>
+            <a class="btn btn-grad btn-info btn-sm" href="../outmigration/list">迁出管理</a>
         </div>
         <div class="index-nav-frame-line" tabindex="-1">
             <a class="btn btn-grad btn-info btn-sm" href="notice_list.jsp">公告管理</a>
@@ -193,10 +193,14 @@
     // 页面加载时设置排序指示器
     $(document).ready(function() {
         if (currentSort.field) {
-            updateSortIndicator(currentSort.field);
+            // 延迟执行以确保表格数据已加载
+            setTimeout(function() {
+                sortTable(currentSort.field, false); // false表示不更新URL
+                sortTable(currentSort.field, false);
+                updateSortIndicator(currentSort.field);
+            }, 100);
         }
     });
-
     function searchList() {
         var url = "list?searchColumn=" + document.getElementById("searchColumn").value +
             "&keyword=" + document.getElementById("search_keyword").value;

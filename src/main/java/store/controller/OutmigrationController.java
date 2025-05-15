@@ -84,34 +84,24 @@ public class OutmigrationController {
 
         // 获取分页数据
         List<Outmigration> outmigrationList;
-        if (sortField != null && sortDirection != null) {
-            String orderBy = sortField + " " + sortDirection;
-            if (condition.getName() != null) {
-                outmigrationList = outmigrationService.getOutmigrationsByConditionOrderByWithPagination(condition, orderBy, startIndex, PAGE_SIZE);
-            } else {
-                outmigrationList = outmigrationService.getAllOutmigrationsOrderBy(orderBy);
-            }
+        if (condition.getName() != null) {
+            outmigrationList = outmigrationService.getOutmigrationsByConditionWithPagination(condition, startIndex, PAGE_SIZE);
         } else {
-            if (condition.getName() != null) {
-                outmigrationList = outmigrationService.getOutmigrationsByConditionWithPagination(condition, startIndex, PAGE_SIZE);
-            } else {
-                outmigrationList = outmigrationService.getAllOutmigrationsWithPagination(startIndex, PAGE_SIZE);
-            }
+            outmigrationList = outmigrationService.getAllOutmigrationsWithPagination(startIndex, PAGE_SIZE);
         }
 
         // 设置模型属性
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDirection", sortDirection);
         model.addAttribute("list", outmigrationList);
         model.addAttribute("pageNum", pageNum);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("totalCount", totalCount);
         model.addAttribute("searchColumn", searchColumn);
         model.addAttribute("keyword", keyword);
-        model.addAttribute("sortField", sortField);
-        model.addAttribute("sortDirection", sortDirection);
 
         return "outmigration_list";
     }
-
     @RequestMapping("/add")
     public String add(Outmigration outmigration, HttpServletRequest request) {
         // 验证姓名

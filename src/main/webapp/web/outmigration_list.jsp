@@ -79,6 +79,7 @@
         <div class="index-content-operation-search">
             <input id="search_keyword" placeholder="姓名" type="text" name="search_keyword" value="${keyword}"/>
             <input type="hidden" id="searchColumn" name="searchColumn" value="name"/>
+
             <input type="hidden" id="sortField" name="sortField" value="${param.sortField}"/>
             <input type="hidden" id="sortDirection" name="sortDirection" value="${param.sortDirection}"/>
             <button class="btn btn-grad btn-info btn-sm" onclick="searchList()">搜索</button>
@@ -94,7 +95,8 @@
         <table class="table table-striped table-hover table-bordered">
             <thead>
             <tr class="index-content-table-th">
-                <th class="name-sortable ${param.sortField == 'name' ? param.sortDirection : ''}" onclick="sortByName()">姓名</th>
+                <th class="name-sortable ${param.sortField == 'name' ? param.sortDirection : ''}"
+                    onclick="sortByName()">姓名</th>
                 <th>性别</th>
                 <th>迁出金额</th>
                 <th>缴费方式</th>
@@ -191,6 +193,18 @@
         direction: "${param.sortDirection}" || 'asc'
     };
 
+    // 页面加载时自动应用排序
+    $(document).ready(function() {
+        if (currentSort.field) {
+            // 延迟执行以确保表格数据已加载
+            setTimeout(function() {
+                sortTable(currentSort.field, false); // false表示不更新URL
+                sortTable(currentSort.field, false);
+                updateSortIndicator(currentSort.field);
+            }, 100);
+        }
+    });
+
     // 页面加载时设置排序指示器
     $(document).ready(function() {
         if (currentSort.field) {
@@ -204,12 +218,12 @@
 
         // 添加排序条件
         if (currentSort.field) {
-            url += "&sortField=" + currentSort.field + "&sortDirection=" + currentSort.direction;
+            url += "&sortField=" + currentSort.field +
+                "&sortDirection=" + currentSort.direction;
         }
 
         window.location.href = url;
     }
-
     function confirmDelete(id, name) {
         if (confirm('确定要删除迁出记录：' + name + '吗？')) {
             window.location.href = 'delete?id=' + id + '&pageNum=${pageNum}';
@@ -220,9 +234,8 @@
     function sortByName() {
         sortTable('name');
     }
-
     // 通用表格排序函数
-    function sortTable(field) {
+    function sortTable(field, updateUrl = true) {
         // 确定排序方向
         if (currentSort.field === field) {
             currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
@@ -231,35 +244,54 @@
             currentSort.direction = 'asc';
         }
 
-        // 更新排序指示器
+        // 更新隐藏字段
+        document.getElementById("sortField").value = currentSort.field;
+        document.getElementById("sortDirection").value = currentSort.direction;
         updateSortIndicator(field);
+        // 如果需要更新URL（点击表头时）
+        if (updateUrl) {
+            updateUrlWithSortParams();
+        }
 
-        // 同时进行前端排序
+        // 对当前页数据进行排序
         var $table = $('table');
         var $rows = $table.find('tbody tr').get();
 
-        // 排序行
         $rows.sort(function(a, b) {
             var aVal = $(a).find('td').eq(getFieldIndex(field)).text().toLowerCase();
             var bVal = $(b).find('td').eq(getFieldIndex(field)).text().toLowerCase();
 
-            if (currentSort.direction === 'asc') {
-                return aVal.localeCompare(bVal);
-            } else {
-                return bVal.localeCompare(aVal);
-            }
+            return currentSort.direction === 'asc'
+                ? aVal.localeCompare(bVal)
+                : bVal.localeCompare(aVal);
         });
 
-        // 更新表格
         $.each($rows, function(index, row) {
             $table.find('tbody').append(row);
         });
-
-        // 保存当前排序状态到隐藏字段
-        document.getElementById("sortField").value = currentSort.field;
-        document.getElementById("sortDirection").value = currentSort.direction;
     }
+    function updateUrlWithSortParams() {
+        var url = window.location.pathname;
+        var params = [];
 
+        // 添加页码参数
+        params.push("pageNum=${pageNum}");
+
+        // 添加搜索参数
+        var searchColumn = document.getElementById("searchColumn").value;
+        var keyword = document.getElementById("search_keyword").value;
+        if (searchColumn && keyword) {
+            params.push("searchColumn=" + encodeURIComponent(searchColumn));
+            params.push("keyword=" + encodeURIComponent(keyword));
+        }
+
+        // 添加排序参数
+        params.push("sortField=" + currentSort.field);
+        params.push("sortDirection=" + currentSort.direction);
+
+        // 更新URL但不刷新页面
+        history.replaceState(null, null, url + "?" + params.join("&"));
+    }
     // 获取字段在表格中的索引
     function getFieldIndex(field) {
         var headers = $('table thead th');
@@ -283,23 +315,22 @@
     function goToPage(pageNum) {
         var url = "list?pageNum=" + pageNum;
 
-        // 添加搜索条件（如果有）
+        // 添加搜索条件
         var searchColumn = document.getElementById("searchColumn").value;
         var keyword = document.getElementById("search_keyword").value;
         if (searchColumn && keyword) {
-            url += "&searchColumn=" + searchColumn + "&keyword=" + keyword;
+            url += "&searchColumn=" + encodeURIComponent(searchColumn) +
+                "&keyword=" + encodeURIComponent(keyword);
         }
 
-        // 添加排序条件（使用隐藏字段中保存的最新排序状态）
-        var sortField = document.getElementById("sortField").value;
-        var sortDirection = document.getElementById("sortDirection").value;
-        if (sortField) {
-            url += "&sortField=" + sortField + "&sortDirection=" + sortDirection;
+        // 添加排序条件
+        if (currentSort.field) {
+            url += "&sortField=" + currentSort.field +
+                "&sortDirection=" + currentSort.direction;
         }
 
         window.location.href = url;
     }
-
     // 跳转页面验证
     function jumpToPage() {
         var pageNum = document.getElementById("jumpPageNum").value;

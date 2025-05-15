@@ -10,7 +10,7 @@ public interface OutmigrationService {
     Outmigration getOutmigrationById(Integer id);
     List<Outmigration> getAllOutmigrations();
     List<Outmigration> getOutmigrationsByCondition(Outmigration condition);
-    List<Outmigration> getAllOutmigrationsOrderBy(String orderBy);
+//    List<Outmigration> getAllOutmigrationsOrderBy(String orderBy);
     // 添加根据姓名查询的方法
     Outmigration getOutmigrationByName(String name);
 
@@ -19,8 +19,8 @@ public interface OutmigrationService {
     // 分页相关方法
     List<Outmigration> getAllOutmigrationsWithPagination(int startIndex, int pageSize);
     List<Outmigration> getOutmigrationsByConditionWithPagination(Outmigration condition, int startIndex, int pageSize);
-    List<Outmigration> getOutmigrationsByConditionOrderByWithPagination(Outmigration condition, String orderBy, 
-                                                                      int startIndex, int pageSize);
+//    List<Outmigration> getOutmigrationsByConditionOrderByWithPagination(Outmigration condition, String orderBy,
+//                                                                      int startIndex, int pageSize);
     
     int countAllOutmigrations();
     int countOutmigrationsByCondition(Outmigration condition);

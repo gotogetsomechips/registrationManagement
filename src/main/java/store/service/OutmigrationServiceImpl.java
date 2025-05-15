@@ -50,10 +50,10 @@ public class OutmigrationServiceImpl implements OutmigrationService {
         return outmigrationMapper.selectByCondition(condition);
     }
 
-    @Override
-    public List<Outmigration> getAllOutmigrationsOrderBy(String orderBy) {
-        return outmigrationMapper.selectAllOrderBy(orderBy);
-    }
+//    @Override
+//    public List<Outmigration> getAllOutmigrationsOrderBy(String orderBy) {
+//        return outmigrationMapper.selectAllOrderBy(orderBy);
+//    }
 
     @Override
     public List<Outmigration> getAllOutmigrationsWithPagination(int startIndex, int pageSize) {
@@ -65,10 +65,10 @@ public class OutmigrationServiceImpl implements OutmigrationService {
         return outmigrationMapper.selectByConditionWithPagination(condition, startIndex, pageSize);
     }
 
-    @Override
-    public List<Outmigration> getOutmigrationsByConditionOrderByWithPagination(Outmigration condition, String orderBy, int startIndex, int pageSize) {
-        return outmigrationMapper.selectByConditionOrderByWithPagination(condition, orderBy, startIndex, pageSize);
-    }
+//    @Override
+//    public List<Outmigration> getOutmigrationsByConditionOrderByWithPagination(Outmigration condition, String orderBy, int startIndex, int pageSize) {
+//        return outmigrationMapper.selectByConditionOrderByWithPagination(condition, orderBy, startIndex, pageSize);
+//    }
 
     @Override
     public int countAllOutmigrations() {

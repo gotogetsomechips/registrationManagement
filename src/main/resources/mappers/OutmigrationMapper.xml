@@ -85,10 +85,10 @@
         ORDER BY id DESC
     </select>
 
-    <select id="selectAllOrderBy" parameterType="string" resultMap="BaseResultMap">
+    <select id="selectAllOrderBy" resultMap="BaseResultMap">
         SELECT <include refid="Base_Column_List" />
         FROM outmigration
-        ORDER BY ${orderBy}
+        ORDER BY ${value}
     </select>
 
     <!-- 分页相关方法 -->
